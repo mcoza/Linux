@@ -1,22 +1,26 @@
 # Linux Troubleshooting Practice
 
-This repository documents my Linux troubleshooting practice as it developed through hands-on labs. It is intentionally written as a learning progression rather than a command reference or a set of polished production case studies.
+This repository documents how my Linux troubleshooting has developed through the Linux Upskill Challenge, SadServers, and related hands-on labs. It is intentionally written as a learning progression rather than a command reference or a collection of polished production case studies.
 
-The work comes from personal training environments. The goal is to show what I was trying to understand, what evidence I gathered, how I chose the next command, and what I learned when my first assumption was incomplete or wrong.
+The goal is to show what I was trying to understand, what evidence I gathered, why I chose the next command, and what I learned when my first assumption was incomplete or wrong.
+
+This is personal training work, not professional Linux administration experience.
 
 ## Foundation work
 
-Before the troubleshooting exercises became more interconnected, I practiced basic command-line navigation, shell pipelines, SSH-based work, and Debian/Ubuntu package management. That included the normal APT workflow with `apt update`, `apt upgrade`, `apt install`, `apt remove`, `apt search`, and `apt show`, plus the practical distinction between the user-facing `apt` command and the older/script-oriented `apt-get` interface.
+Before the troubleshooting exercises became more interconnected, I practiced command-line navigation, SSH-based work, shell pipelines, files and permissions, and Debian/Ubuntu package management.
+
+That included the normal APT workflow with `apt update`, `apt upgrade`, `apt install`, `apt remove`, `apt search`, and `apt show`, plus the practical distinction between the user-facing `apt` command and the older/script-oriented `apt-get` interface.
 
 Those basics are not presented as a separate project because they became tools used throughout the later troubleshooting work.
 
-## How my troubleshooting approach has developed
+## How my troubleshooting approach developed
 
 ### 1. Start with files, text, and command output
 
-My early exercises were mostly about extracting the right piece of information from a large amount of text. I practiced `find`, `grep`, `awk`, `sort`, `uniq`, pipes, arithmetic, and searches under `/proc`.
+My early exercises were mostly about extracting the right piece of information from a large amount of text. I practiced `find`, `grep`, `awk`, `sort`, `uniq`, pipes, arithmetic, log analysis, and searches under `/proc`.
 
-The first shift in my thinking was from memorizing commands to asking what kind of question I needed to answer:
+The first shift was from memorizing commands to asking what kind of information I needed:
 
 ```text
 Where is the object?       → find
@@ -29,9 +33,9 @@ How often does it occur?   → sort / uniq -c
 
 ### 2. Connect a symptom to a process and then to system state
 
-The next group of exercises introduced process ownership and host health. I worked from changing files and open resources into PIDs, process trees, CPU/load, memory, OOM history, storage, and virtual filesystems.
+The next exercises introduced process ownership and host health. I worked from changing files and open resources into PIDs, process trees, CPU/load, memory, OOM history, storage, and virtual filesystems.
 
-This added a second troubleshooting pattern:
+This added another troubleshooting path:
 
 ```text
 known resource or symptom
@@ -47,9 +51,9 @@ Tools here included `ps`, `pgrep`, `fuser`, `lsof`, `top`, `htop`, `free`, `vmst
 
 [Processes and system state](02-process-and-system-state.md)
 
-### 3. Add identity and permissions to the investigation
+### 3. Add identity and permissions
 
-User and permission exercises added another question that can sit underneath file, script, or service failures: **which identity is trying to perform the operation, and what access does that identity actually have?**
+User and permission exercises added another question underneath file, script, and service failures: **which identity is trying to perform the operation, and what access does that identity actually have?**
 
 I practiced checking users, groups, ownership, and permission bits, and learned not to treat `permission denied` as a generic application failure.
 
@@ -57,7 +61,7 @@ I practiced checking users, groups, ownership, and permission bits, and learned 
 
 ### 4. Follow services and automation past the launcher
 
-Later exercises added systemd, cron, timers, service-to-script relationships, and cgroup resource controls.
+Later exercises added systemd, cron, timers, service-to-script relationships, service dependencies, and cgroup resource controls.
 
 The important lesson was that these are different claims:
 
@@ -67,15 +71,15 @@ The important lesson was that these are different claims:
 "the intended result actually happened"
 ```
 
-I learned to inspect unit state, the command systemd was configured to launch, logs, scripts, scheduler configuration, paths, lock files, and the final output instead of stopping at a green service state.
+I learned to inspect unit state, the command systemd was configured to launch, logs, scripts, scheduler configuration, paths, lock files, dependencies, and the final output instead of stopping at a green service state.
 
 [Services and automation](03-services-and-automation.md)
 
 ### 5. Trace network and application paths
 
-The networking work started with listeners and bind addresses, then became more useful once I began following ports into processes, services, configuration, and downstream dependencies.
+The networking work started with listeners and bind addresses. It became more useful once I began following ports into processes, services, configuration, and downstream dependencies.
 
-Recent examples included:
+Examples included:
 
 - tracing a port conflict from `8000/tcp` to a Django process and its systemd unit
 - discovering that Nginx on port 80 proxied requests to that Django backend
@@ -97,7 +101,7 @@ That distinction matters because an unfamiliar process, an open port, or a high 
 
 ## Current troubleshooting model
 
-The model I am trying to make habitual is:
+The model I am trying to make repeatable is:
 
 ```text
 reproduce the symptom
@@ -115,4 +119,6 @@ make the smallest justified change
 verify the original requirement
 ```
 
-I am still building speed and familiarity with Linux subsystems. Some later topics—such as Nginx, FTP behavior, systemd timers, and cgroup v2 controls—were first exposures during these labs. They are documented as learning and troubleshooting experience rather than production administration expertise.
+The progression in this repository is the part I want to preserve. Early work was mostly command and output interpretation. Later work increasingly required connecting multiple subsystems—processes, systemd, scripts, sockets, firewalls, reverse proxies, schedulers, and resource controls—without assuming that an unfamiliar component was automatically the problem.
+
+Some later topics, such as Nginx, FTP behavior, systemd timers, and cgroup v2 controls, were first exposures during these labs. They are documented as learning and troubleshooting experience rather than production administration expertise.
