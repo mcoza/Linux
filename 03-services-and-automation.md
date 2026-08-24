@@ -37,7 +37,16 @@ sudo systemctl restart <unit>
 
 `daemon-reload` makes systemd reread the unit definition; the restart creates a new process using it.
 
-## Cron: fix the schedule, then test the job
+## Cron: inspect the schedule, then test the job
+
+Cron was a new scheduler for me, so the first useful distinction was between the daemon that runs scheduled jobs and the crontab that defines them.
+
+```bash
+crontab -l
+sudo crontab -l
+```
+
+The first shows the current user's scheduled jobs; the second checks root's crontab when the task runs as root.
 
 A backup job was scheduled every five minutes but pointed to a nonexistent script:
 
