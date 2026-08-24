@@ -1,24 +1,26 @@
 # Linux System Troubleshooting
 
-An ongoing hands-on Linux troubleshooting portfolio built from completed lab work and guided system investigations.
+An ongoing hands-on Linux portfolio focused on system investigation, troubleshooting, and understanding how Linux components interact.
 
-This repository is intentionally **cumulative** rather than a collection of one-off challenge solutions. Small exercises feed into broader troubleshooting skills, while larger multi-component investigations become case studies.
+This repository is intentionally **cumulative**. Smaller technical exercises build reusable skills, while larger multi-component investigations are documented as case studies. The focus is on the troubleshooting process and what was learned, not on the training platform or individual challenge names.
 
 ## Current coverage
 
 ### Command line and data processing
 
-- searching and filtering text
-- counting and aggregating log data
-- shell-based arithmetic and field processing
+- searching and filtering text with tools such as `grep`
+- extracting and processing fields with `awk`
+- counting and aggregating log data with `sort` and `uniq`
+- shell-based arithmetic and output formatting
 - CSV manipulation and merging
 - filesystem and `/proc` investigation
 
 ### Processes, files, and IPC
 
 - identifying processes interacting with files
-- process inspection and termination
-- file/process relationships through tools such as `ps`, `fuser`, and `lsof`
+- inspecting and terminating processes
+- tracing file/process relationships with `ps`, `fuser`, and `lsof`
+- following changing log files
 - named-pipe troubleshooting
 
 ### System analysis
@@ -26,8 +28,9 @@ This repository is intentionally **cumulative** rather than a collection of one-
 - CPU and load interpretation
 - memory review and historical OOM investigation
 - disk-capacity checks
-- process/service discovery
+- process and service discovery
 - cgroup-related troubleshooting
+- combining current system state with historical logs
 
 ### Networking and services
 
@@ -42,7 +45,7 @@ This repository is intentionally **cumulative** rather than a collection of one-
 
 - scheduled task troubleshooting
 - systemd timer investigation
-- backup/automation failures
+- backup and maintenance automation failures
 - service configuration and verification
 
 ### Security and application services
@@ -72,7 +75,7 @@ Make a targeted change
 Verify the result
 ```
 
-A second pattern that became important during the server-review work is separating two questions:
+A second pattern that became important during system review work is separating two questions:
 
 ```text
 What is this system doing?
@@ -86,21 +89,21 @@ That distinction helps avoid jumping directly from a high CPU, memory, or networ
 
 ## Case studies
 
-- [Linux Server Review](cases/linux-server-review.md) — system purpose, CPU/load, memory/OOM, disk, processes, and listening services
-- [Bergen: Nginx Port Conflict](cases/bergen-nginx-port-conflict.md) — port conflict, service discovery, Nginx configuration, `proxy_pass`, and backend routing
+- [Linux Server Investigation](cases/linux-server-review.md) — system purpose, CPU/load, memory/OOM, disk, processes, and listening services
+- [Nginx Port Conflict and Backend Routing](cases/nginx-port-conflict.md) — port conflict, service discovery, Nginx configuration, `proxy_pass`, and backend routing
 
-## Practice log
+## Skills progress
 
-A compact record of completed hands-on scenarios is kept in [practice-log.md](practice-log.md).
+[skills-progress.md](skills-progress.md) tracks the Linux areas practiced so far without tying the portfolio to individual training scenarios.
 
-The practice log is evidence of repetition and coverage; the case studies are where larger troubleshooting chains are documented in detail.
+It is a concise map of the technical areas that have been worked through and can be expanded as new Linux topics are practiced.
 
 ## How this repository grows
 
 When new work is completed:
 
-1. Add the completed exercise to the practice log.
-2. Update the relevant skill area in this README when the exercise adds reusable knowledge.
+1. Update the relevant area in the skills-progress file.
+2. Add reusable commands, concepts, or troubleshooting patterns to the appropriate section of the repository.
 3. Create a case study only when the work connects multiple components or demonstrates a substantial troubleshooting process.
 
 This keeps the repository maintainable as Linux skills expand without turning every short exercise into a separate project page.
