@@ -1,4 +1,4 @@
-# Bergen: Nginx Port Conflict and Backend Routing
+# Nginx Port Conflict and Backend Routing
 
 ## Goal
 
