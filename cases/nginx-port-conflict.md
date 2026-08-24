@@ -11,8 +11,8 @@ The useful part of this exercise was connecting the listener, Nginx configuratio
 The Nginx site configuration was inspected under:
 
 ```text
-/etc/nginx/sites-available/bergen
-/etc/nginx/sites-enabled/bergen
+/etc/nginx/sites-available/<site-name>
+/etc/nginx/sites-enabled/<site-name>
 ```
 
 A directly observed directive was:
@@ -67,7 +67,7 @@ compare configuration with the intended service path
 
 ## Evidence boundary
 
-The SadServers scenario reached the platform's successful completion state. However, the exact final remediation command sequence is not retained accurately enough to reproduce here.
+The exercise reached the platform's successful completion state. However, the exact final remediation command sequence is not retained accurately enough to reproduce here.
 
 For that reason, this case documents the verified configuration and reasoning above rather than inventing the exact edit, reload command, or final backend value used to complete the scenario.
 
