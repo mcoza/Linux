@@ -19,7 +19,7 @@ Searching the configuration showed:
 
 ```text
 /etc/nginx/sites-enabled/bergen:7:        proxy_pass http://127.0.0.1:8000;
-/etc/nginx/sites-available/bergen:7:7:    proxy_pass http://127.0.0.1:8000;
+/etc/nginx/sites-available/bergen:7:      proxy_pass http://127.0.0.1:8000;
 ```
 
 The important discovery was not just the port number. It was understanding the request path:
