@@ -1,6 +1,6 @@
 # 4. Networking and Application Paths
 
-This stage developed from identifying individual ports to tracing the relationships among listeners, processes, services, configuration, and application dependencies.
+This stage developed from identifying individual ports to tracing the path behind them: listener → process → service/configuration → dependency.
 
 ## Reading listeners in context
 
@@ -9,21 +9,19 @@ ss -tlpn
 netstat -tlpn
 ```
 
-**When I use them:** A service is unreachable, a port appears occupied, or I need to understand which services are exposed.
-
-**What I need from the output:** protocol and socket state, local address and port, bind scope, and owning process when available.
+Useful interpretations:
 
 ```text
-127.0.0.1 → reachable only from the local host
-0.0.0.0   → bound on all IPv4 interfaces
-:::       → IPv6 unspecified / broadly bound on IPv6
+127.0.0.1 → loopback/local host only
+0.0.0.0   → all IPv4 interfaces
+:::       → IPv6 unspecified address
 ```
 
-TCP `LISTEN` and UDP `UNCONN` describe different protocol behavior. `UNCONN` is not an error by itself because UDP is connectionless.
+I learned to look for protocol/state, local address and port, bind scope, and owning process. TCP `LISTEN` and UDP `UNCONN` describe different protocol behavior; `UNCONN` is normal for UDP.
 
-One important correction to my own troubleshooting approach was learning that an unfamiliar listener is not automatically suspicious. A port becomes meaningful only when it is connected to the reported symptom, expected service, configuration, or application behavior.
+A useful correction to my own reasoning was that an unfamiliar listener is not automatically suspicious. It only becomes relevant when the evidence connects it to the symptom or expected service.
 
-## Port conflict: follow the port instead of guessing
+## Port conflict: port → PID → service
 
 A standalone application failed with:
 
@@ -31,185 +29,97 @@ A standalone application failed with:
 listen tcp4 0.0.0.0:8000: bind: address already in use
 ```
 
-That error provided a concrete fact: the application needed TCP port 8000 and the kernel would not let it bind because something else already owned it.
-
-Instead of guessing from a list of open ports, I could ask directly who was using that resource:
+That error gave me a concrete starting point: something already owned `8000/tcp`.
 
 ```bash
 fuser -v 8000/tcp
 ps -fp <PID>
 ```
 
-The process was Python running Django with:
-
-```text
-python3 manage.py runserver 0.0.0.0:8000
-```
-
-Following the parent process and then systemd showed that `django.service` was responsible for launching the backend on port 8000.
-
-The path at that point was:
+The process was Python running Django on port 8000. Following the PPID and then systemd showed that `django.service` launched it with an `ExecStart` argument containing `0.0.0.0:8000`.
 
 ```text
 port 8000
-   ↓
-fuser / ss
-   ↓
-PID
-   ↓
-ps / PPID
-   ↓
-django.service
-   ↓
-ExecStart ... :8000
+→ owning PID
+→ Python/Django process
+→ parent/systemd
+→ django.service configuration
 ```
 
-That was more useful than simply killing the Python PID, because the service manager could recreate it and the process might be required by another component.
+That explained why killing the PID was not yet a justified fix: the process was managed and might also be required by another component.
 
-## Learning how Nginx fit into the path
+## First useful Nginx troubleshooting path
 
-The same exercise required keeping an existing web application on port 80 working. `curl localhost:80` returned the expected page, so port 80 became a requirement to preserve rather than something to change blindly.
+The same exercise required the web application on port 80 to keep working. `curl localhost:80` returned the expected page, so I first established that as a working baseline.
 
-I inspected Nginx with:
-
-```bash
-sudo nginx -T
-```
-
-and narrowed the output to the relevant directives. The active configuration showed:
+Nginx configuration showed:
 
 ```nginx
 listen 80 default_server;
 proxy_pass http://127.0.0.1:8000;
 ```
 
-This was my first useful interaction with Nginx as part of a troubleshooting chain. The directive made the application path concrete:
+That made the path visible:
 
 ```text
-client
-  ↓
-Nginx :80
-  ↓
-proxy_pass
-  ↓
-Django :8000
+client → Nginx :80 → Django :8000
 ```
 
-That explained why simply killing Django would have freed port 8000 but broken the required website.
+This was new to me. `proxy_pass` meant Nginx was accepting the request on port 80 and forwarding it to the local Django backend on port 8000.
 
-The safe change was to move Django to a different free port and update Nginx to point to the same new backend:
+Because the standalone program had to keep port 8000, the safe change was:
 
 ```text
 client → Nginx :80 → Django :8001
 standalone           → :8000
 ```
 
-The systemd unit and Nginx config had to agree on the new backend location.
+Both configurations had to change: the systemd unit that launched Django and the Nginx `proxy_pass` target.
 
-## Configuration on disk versus running state
-
-This exercise also tied together a pattern I had already seen with systemd.
-
-Changing the Django unit file did not automatically move the existing Python process. The unit had to be reloaded and the service restarted.
-
-Changing the Nginx configuration also did not automatically change the running Nginx worker behavior. Before applying it, I checked the syntax:
+After changing the Django unit, systemd had to reread the unit and restart Django. After changing Nginx, I validated and reloaded its configuration:
 
 ```bash
 sudo nginx -t
-```
-
-and then reloaded Nginx:
-
-```bash
 sudo systemctl reload nginx
 ```
 
-The general pattern became:
+## What the 502 taught me
+
+During the change, `curl localhost:80` returned `502 Bad Gateway` while Nginx still pointed at the old backend port.
+
+That was useful evidence:
 
 ```text
-edit configuration
-      ↓
-validate/reload the manager or daemon as required
-      ↓
-verify the actual runtime state
+client reached Nginx :80      ✓
+Nginx reached its backend     ✗
 ```
 
-## Using a 502 as evidence
+So a 502 from Nginx pushed the next investigation toward the configured upstream/backend rather than back toward whether port 80 was listening.
 
-During the port move, `curl localhost:80` returned:
+The exercise also introduced the Debian/Ubuntu `sites-available` and `sites-enabled` layout. I used `grep` to find the `proxy_pass` directive and `ls -l` to confirm the enabled site linked to the available configuration before editing it.
 
-```text
-502 Bad Gateway
-```
+## FTP: login worked, transfer failed
 
-That did not mean Nginx itself was unreachable. In this context, the response proved that the request reached Nginx, but Nginx could not successfully reach the configured backend.
-
-The temporary mismatch was:
-
-```text
-Nginx :80 → old backend :8000   X
-Django    → new backend :8001
-```
-
-Updating `proxy_pass` and reloading Nginx restored the request path.
-
-This gave me a new symptom association:
-
-```text
-Nginx 502
-→ front end is responding
-→ inspect the configured upstream/backend next
-```
-
-## Nginx configuration layout
-
-The exercise also introduced the Debian/Ubuntu layout:
-
-```text
-/etc/nginx/sites-available/
-/etc/nginx/sites-enabled/
-```
-
-I used `grep` to locate the active `proxy_pass` directive and `ls -l` to confirm that the enabled site was a symlink to the available configuration file before editing the source configuration.
-
-That was a new subsystem-specific detail, not something I could have inferred just from knowing ports or processes.
-
-## FTP synchronization: control versus data connection
-
-Another exercise involved a script that successfully connected and authenticated to an FTP server but failed when it tried to transfer a file.
-
-The script explicitly contained:
+Another exercise used an FTP synchronization script. The client connected and authenticated successfully but failed when the file transfer began because the script forced active mode with:
 
 ```text
 passive off
 ```
 
-and the server returned an error indicating that active-mode `PORT/EPRT` was not allowed and passive mode should be used.
+The server responded that `PORT/EPRT` was not allowed and passive mode should be used.
 
-The important concept was that FTP uses separate connections:
-
-```text
-control connection → usually TCP 21, login and commands
-data connection    → separate connection used for file transfer
-```
-
-Because login succeeded, the control channel was working. The failure appeared when the data connection was required. Removing the forced active mode allowed the client to use passive mode and complete the transfer.
-
-The synchronization service then succeeded, and the API that depended on the synchronized catalog had to be retried.
-
-That exercise connected:
+This introduced the fact that FTP separates control and data traffic:
 
 ```text
-systemd service
-→ Bash script
-→ FTP control/data behavior
-→ local file
-→ dependent API
+control connection → login and FTP commands, normally TCP 21
+data connection    → separate connection for the actual transfer
 ```
 
-## Localhost is still part of the network stack
+Successful login therefore did not prove that the data-transfer path was working. Removing the forced active mode allowed the transfer to complete, after which the dependent API service could be retried.
 
-A separate health-check exercise used:
+## Localhost still uses the network stack
+
+A separate health-check script used:
 
 ```bash
 curl http://localhost
@@ -217,30 +127,24 @@ curl http://localhost
 
 and hung because an iptables OUTPUT rule blocked traffic to `127.0.0.1:80`.
 
-That reinforced that loopback traffic is local but still travels through the host networking stack and can be affected by firewall policy.
+That reinforced that loopback traffic stays on the same machine but still goes through networking behavior that can be affected by firewall rules.
 
 ## Additional exposure
 
-Other completed labs included changing and auditing service ports, TLS/certificate troubleshooting, and database-related failures. Those are included as troubleshooting exposure rather than claims of deep Nginx, FTP, PKI, or database administration.
+Other completed labs included changing and auditing service ports, TLS/certificate troubleshooting, and database-related failures. I treat those as troubleshooting exposure rather than deep Nginx, FTP, PKI, or database administration experience.
 
 ## What changed in my troubleshooting approach
 
-Earlier, I tended to view networking as "what port is open?" The later exercises made the path more useful:
+I started this area mostly thinking in terms of open ports. The more useful model became:
 
 ```text
-reported network/application symptom
-        ↓
-which socket or endpoint is involved?
-        ↓
-which process owns it?
-        ↓
-which service or configuration controls that process?
-        ↓
-what client, proxy, file, or backend depends on it?
-        ↓
-change the smallest part of the path
-        ↓
-verify the original application behavior
+symptom
+→ endpoint/socket
+→ owning process
+→ service or configuration
+→ next application dependency
+→ smallest justified change
+→ verify the original behavior
 ```
 
-The Nginx work was genuinely new, but it became understandable once it was connected to familiar process, port, systemd, and `curl` evidence.
+The Nginx and FTP details were new, but they became easier to understand once they were connected to the process, systemd, port, and `curl` concepts I had already practiced.
