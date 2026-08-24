@@ -30,7 +30,7 @@ pgrep
 kill
 ```
 
-Saint John used this pattern to identify and stop the process continuously writing to a log while preserving the log file.
+One process investigation used this pattern to identify and stop the process continuously writing to a log while preserving the log file.
 
 ## `find`, `grep`, and `/proc`
 
@@ -42,13 +42,13 @@ Example pattern:
 find /path -type f -exec grep -l 'pattern' {} +
 ```
 
-The Bata exercise applied this idea under `/proc/sys`. `/proc` is a virtual filesystem exposing live process/kernel state, so permission errors and dynamically changing entries are normal parts of working there.
+One filesystem-search exercise applied this idea under `/proc/sys`. `/proc` is a virtual filesystem exposing live process/kernel state, so permission errors and dynamically changing entries are normal parts of working there.
 
-Tokamachi also provided completed exposure to named pipes/FIFOs. The exact command sequence is not retained, so the portfolio does not reconstruct it.
+Another completed exercise provided exposure to named pipes/FIFOs. The exact command sequence is not retained, so the portfolio does not reconstruct it.
 
 ## CPU, load, memory, and storage
 
-The Linux Server Review used:
+The whole-system review used:
 
 ```bash
 lscpu
@@ -105,7 +105,7 @@ verify the final result
 
 This work provided hands-on exposure to `systemctl`, `journalctl`, systemd timers, scheduled tasks, and the difference between a scheduler firing and the underlying command actually succeeding.
 
-The Genova exercise also provided completed exposure to cgroup/resource-control troubleshooting. Deep cgroup administration is not claimed.
+A completed resource-control exercise also provided exposure to cgroup troubleshooting. Deep cgroup administration is not claimed.
 
 ## What this demonstrates
 
@@ -120,4 +120,4 @@ The Genova exercise also provided completed exposure to cgroup/resource-control 
 - scheduled-task failure investigation
 - introductory FIFO and cgroup troubleshooting exposure
 
-For the strongest multi-component example, see [Linux Server Review](../cases/linux-server-review.md).
+For the strongest multi-component example, see [Whole-System Health Review](../cases/system-health-review.md).
