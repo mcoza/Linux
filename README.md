@@ -51,15 +51,7 @@ Tools here included `ps`, `pgrep`, `fuser`, `lsof`, `top`, `htop`, `free`, `vmst
 
 [Processes and system state](02-process-and-system-state.md)
 
-### 3. Add identity and permissions
-
-User and permission exercises added another question underneath file, script, and service failures: **which identity is trying to perform the operation, and what access does that identity actually have?**
-
-I practiced checking users, groups, ownership, and permission bits, and learned not to treat `permission denied` as a generic application failure.
-
-[Users and permissions](05-users-and-permissions.md)
-
-### 4. Follow services and automation past the launcher
+### 3. Follow services and automation past the launcher
 
 Later exercises added systemd, cron, timers, service-to-script relationships, service dependencies, and cgroup resource controls.
 
@@ -75,7 +67,7 @@ I learned to inspect unit state, the command systemd was configured to launch, l
 
 [Services and automation](03-services-and-automation.md)
 
-### 5. Trace network and application paths
+### 4. Trace network and application paths
 
 The networking work started with listeners and bind addresses. It became more useful once I began following ports into processes, services, configuration, and downstream dependencies.
 
@@ -89,6 +81,14 @@ Examples included:
 - tracing a local `curl` failure to an iptables OUTPUT rule
 
 [Networking and application paths](04-networking-and-application-paths.md)
+
+### 5. Keep identity and permissions in the path
+
+User and permission exercises added another question that can sit underneath file, script, and service failures: **which identity is trying to perform the operation, and what access does that identity actually have?**
+
+I practiced checking users, groups, ownership, and permission bits, and learned not to treat `permission denied` as a generic application failure. This became a cross-cutting check rather than an isolated permissions topic.
+
+[Users and permissions](05-users-and-permissions.md)
 
 ## Applied whole-system review
 
@@ -119,6 +119,6 @@ make the smallest justified change
 verify the original requirement
 ```
 
-The progression in this repository is the part I want to preserve. Early work was mostly command and output interpretation. Later work increasingly required connecting multiple subsystems—processes, systemd, scripts, sockets, firewalls, reverse proxies, schedulers, and resource controls—without assuming that an unfamiliar component was automatically the problem.
+The progression in this repository is the part I want to preserve. Early work was mostly command and output interpretation. Later work increasingly required connecting multiple subsystems—processes, systemd, scripts, sockets, firewalls, reverse proxies, schedulers, permissions, and resource controls—without assuming that an unfamiliar component was automatically the problem.
 
 Some later topics, such as Nginx, FTP behavior, systemd timers, and cgroup v2 controls, were first exposures during these labs. They are documented as learning and troubleshooting experience rather than production administration expertise.
