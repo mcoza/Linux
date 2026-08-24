@@ -1,46 +1,46 @@
-# Linux Troubleshooting: Learning and Applied Reasoning
+# Linux Troubleshooting Practice
 
-This repository documents how I am developing Linux troubleshooting judgment through hands-on exercises. It is organized around a progression: what I learned, where I applied it, why I selected a command, what its output revealed, and how that evidence guided the next step.
+Hands-on Linux troubleshooting notes focused on **why a command was chosen, what its output revealed, and what to check next**.
 
-The purpose is not to present a list of commands or claim professional Linux administration experience. It is to show how I use Linux tools to answer operational questions.
+The work comes from personal training and lab exercises, not professional Linux administration.
 
-## Learning progression
+## What I have worked on
 
-| Stage | Question being answered | Applied work |
-|---|---|---|
-| [1. File and text investigation](01-file-and-text-investigation.md) | How do I locate, filter, transform, and summarize evidence? | Content searches, log aggregation, column arithmetic, CSV work, and searching virtual filesystems |
-| [2. Processes and system state](02-process-and-system-state.md) | Which process or resource explains the symptom, and is the host healthy? | Open-file tracing, process investigation, IPC, CPU/load, memory/OOM, and storage review |
-| [3. Services and automation](03-services-and-automation.md) | Did the service or scheduled job run, and did its underlying command succeed? | Service inspection, timers, backups, cleanup jobs, and resource-control troubleshooting |
-| [4. Networking and application paths](04-networking-and-application-paths.md) | Which service is listening, where is it exposed, and what dependency comes next? | Service access, port changes and audits, Nginx/backend tracing, TLS, FTP, and database failures |
-| [5. Applied investigation](applied-investigations/system-health-review.md) | How do multiple sources of evidence describe one unfamiliar server? | Processes, listeners, CPU/load, memory history, storage, and service relationships |
+| Area | Hands-on work |
+|---|---|
+| [File and text investigation](01-file-and-text-investigation.md) | `find`, `grep`, `awk`, `sort`, `uniq`, log analysis, arithmetic, CSV work, and searching `/proc` |
+| [Processes and system state](02-process-and-system-state.md) | process/file relationships, `ps`, `lsof`, `fuser`, CPU/load, memory/OOM history, storage, and basic IPC/cgroup exposure |
+| [Services and automation](03-services-and-automation.md) | service inspection, systemd timers, scheduled backups, cleanup jobs, and following a scheduled task through to its result |
+| [Networking and application paths](04-networking-and-application-paths.md) | listeners, bind addresses, ports, Nginx/backend tracing, TLS, FTP, and database troubleshooting exposure |
+| [Whole-system health review](applied-investigations/system-health-review.md) | processes, listeners, CPU/load, memory history, storage, and service relationships on an unfamiliar server |
 
-## Reasoning model
+### Package management foundation
 
-Each command is documented in context:
+I also practiced the normal APT workflow with `apt update`, `apt upgrade`, `apt install`, `apt remove`, `apt search`, and `apt show`, along with the practical distinction between the user-oriented `apt` command and the older/script-friendly `apt-get` interface.
 
-1. **Situation** — the observable problem or question.
-2. **Need** — the information required to continue.
-3. **Command choice** — why that tool fits the question.
-4. **Interpretation** — what the relevant output means.
-5. **Next step** — how the evidence changes the investigation.
-6. **Verification** — how the original symptom or expected result is checked.
+## Strongest investigation
+
+The [whole-system health review](applied-investigations/system-health-review.md) is the most complete example in the repository. It combines process inspection, listener analysis, hardware context, CPU/load, current memory state, historical OOM evidence, and storage capacity to answer two separate questions:
+
+1. What is this server doing?
+2. Is the server healthy?
+
+That investigation also reinforced that a high-utilization process or an open port is evidence to interpret, not automatically the root cause.
+
+## How the notes are written
+
+The useful pattern is kept simple:
 
 ```text
-observe a symptom
+question or symptom
       ↓
-define what must be known
+command chosen for that question
       ↓
-select a command that exposes that state
+relevant output
       ↓
-interpret the evidence in context
+interpretation
       ↓
-take a targeted next step
-      ↓
-verify the result
+next check or verification
 ```
 
-## Evidence boundary
-
-The material comes from completed hands-on Linux troubleshooting exercises. Detailed examples are included where the commands, observations, and reasoning were retained accurately. Other completed areas are identified as applied exposure without reconstructing command sequences from memory.
-
-This is personal lab and training work, not professional Linux administration.
+Detailed command trails are included only when the original commands and observations were retained accurately. Other completed areas are described at the level the evidence supports.
