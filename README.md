@@ -65,6 +65,6 @@ Linux/
 │   ├── system-troubleshooting.md
 │   └── networking-and-services.md
 └── cases/
-    ├── linux-server-review.md
+    ├── system-health-review.md
     └── nginx-port-conflict.md
 ```
