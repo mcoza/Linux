@@ -1,69 +1,92 @@
 # 1. File and Text Investigation
 
-This stage developed the ability to extract useful evidence from files, logs, and command output. The important distinction was not simply knowing commands, but selecting a tool based on whether I needed to locate an object, search its contents, extract fields, count values, or transform data.
+My earliest Linux troubleshooting exercises were mostly about getting the right fact out of files, logs, and command output. The commands themselves were usually familiar faster than the decision of **which command answered which question**.
 
-## Locating objects versus searching contents
+That became the first pattern I tried to make repeatable:
 
-**Situation:** I needed to identify which file in a directory tree contained a particular value.
+```text
+Where is it?        → find
+What does it say?   → grep
+Which field matters?→ awk / cut
+How often?          → sort / uniq -c
+What is the result? → verify the final value
+```
+
+## Finding an object versus searching its contents
+
+One exercise required finding a file under `/proc/sys` whose contents began with a specific value.
 
 ```bash
 find /path -type f
-grep '^pattern:' file
 find /path -type f -exec grep -l '^pattern:' {} +
 ```
 
-**Why these commands:** `find` locates filesystem objects using properties such as path and type. `grep` searches text inside those objects. Combining them answers a different question: which regular file under this path contains the required content?
+What I learned was the distinction between two questions:
 
-**Interpretation:** The `^` anchor restricts the match to the beginning of a line. `-type f` avoids treating directories and other object types as ordinary files.
+- `find` locates filesystem objects.
+- `grep` searches text inside them.
 
-**Applied context:** I used this relationship while searching under `/proc/sys`. Because `/proc` exposes live kernel and process state rather than ordinary disk files, permission errors and changing entries had to be interpreted as part of the environment.
+The `^` anchor restricts the match to the start of a line, and `-type f` avoids treating directories as regular files.
 
-**Next step:** Inspect the matching file and confirm that the value—not merely the filename—answers the original question.
+Working under `/proc` also introduced a useful complication: it is a virtual filesystem exposing live kernel/process state. Permission errors and changing entries are part of that environment, so they do not automatically mean the search command is wrong.
 
-## Turning an access log into a frequency count
+## Turning a log into a count
 
-**Situation:** A raw access log contained many source addresses, and I needed to determine which occurred most frequently.
+Another exercise asked which source address appeared most often in an access log.
 
 ```bash
 awk '{print $1}' access.log | sort | uniq -c | sort -nr | head
 ```
 
-**Why this pipeline:**
+The pipeline made more sense once I stopped treating it as one long command:
 
-- `awk` extracts the relevant field.
-- `sort` groups identical values.
-- `uniq -c` counts each group.
-- `sort -nr` ranks the numeric counts.
-- `head` limits the result to the highest entries.
+```text
+extract field
+→ group identical values
+→ count them
+→ rank the counts
+→ inspect the top result
+```
 
-**Interpretation:** Each program performs one transformation. The value of the pipeline comes from passing progressively refined output to the next command. In the applied exercise, the highest-frequency address appeared 482 times.
+In the exercise, the highest-frequency address appeared 482 times. That number answered the counting question; it did not by itself prove the traffic was malicious or abnormal.
 
-**Next step:** Decide whether the frequency is expected traffic, an operational anomaly, or security-relevant evidence; the count alone does not establish intent.
+The same style of text processing later showed up in HTTP status-code counting and word-frequency exercises.
 
-## Column-based arithmetic
+## Arithmetic from structured text
 
-**Situation:** I needed to calculate a value from a numeric column and control decimal output.
+I also used `awk` and `bc` to calculate values from numeric columns.
 
 ```awk
 sum += $2
 ```
 
-`awk` was appropriate because the input was field-oriented. `bc` was used when shell arithmetic was insufficient for decimal calculations and output precision mattered.
-
-**Reasoning:** The task could be decomposed into extracting the correct field, accumulating the values, dividing by the correct record count, and formatting the result. Verifying each intermediate value made an incorrect final answer easier to trace.
-
-## Additional applied work
-
-I also completed exercises involving searching and filtering evidence across text files, transforming a CSV file, and merging multiple CSV files.
-
-Those exercises reinforced the same pattern:
+This exercise was useful because I initially focused on the final arithmetic. Breaking it into smaller checks was more reliable:
 
 ```text
-locate input → select fields → filter/transform → aggregate → verify output
+correct field?
+→ correct running total?
+→ correct record count?
+→ correct division/precision?
 ```
 
-The exact command trails for the CSV exercises were not retained accurately enough to present as reproducible walkthroughs.
+That same habit carried into later troubleshooting: verify intermediate evidence instead of waiting until the end to discover that the first assumption was wrong.
+
+## Other early command-line practice
+
+Across the early exercises I also used:
+
+- `head` and `tail` to narrow output
+- `grep -c` to count matches
+- `cut` and `awk` for field extraction
+- `md5sum` for file verification
+- shell pipes and redirection
+- CSV filtering, transformation, and merging
+- basic package-management work with APT
+
+I completed additional file/search exercises whose exact command trails were not retained well enough to reconstruct. I keep those as exposure rather than inventing a polished walkthrough from memory.
 
 ## What changed in my troubleshooting approach
 
-I moved from viewing `grep`, `find`, `awk`, `sort`, and `uniq` as isolated commands to treating them as tools for successively narrowing raw system data into evidence that answers a specific question.
+At the beginning, `find`, `grep`, `awk`, `sort`, and `uniq` felt like separate commands to remember. The useful change was learning to start with the information I needed and then choose the tool that exposed it.
+
+That became the base for later work where the "thing being searched" was no longer just text—it could be a process, socket, service, log history, or configuration file.
