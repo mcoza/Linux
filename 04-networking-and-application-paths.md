@@ -52,7 +52,15 @@ That explained why killing the PID was not yet a justified fix: the process was 
 
 The same exercise required the web application on port 80 to keep working. `curl localhost:80` returned the expected page, so I first established that as a working baseline.
 
-Nginx configuration showed:
+I had not worked much with Nginx before this exercise. The useful commands were:
+
+```bash
+sudo nginx -T
+sudo nginx -T | grep -nE 'listen|proxy_pass|8000'
+sudo grep -Rni 'proxy_pass.*8000' /etc/nginx
+```
+
+`nginx -T` showed the configuration Nginx was actually loading. The filtered output exposed:
 
 ```nginx
 listen 80 default_server;
@@ -65,7 +73,7 @@ That made the path visible:
 client → Nginx :80 → Django :8000
 ```
 
-This was new to me. `proxy_pass` meant Nginx was accepting the request on port 80 and forwarding it to the local Django backend on port 8000.
+`proxy_pass` meant Nginx was accepting the request on port 80 and forwarding it to the local Django backend on port 8000.
 
 Because the standalone program had to keep port 8000, the safe change was:
 
@@ -76,12 +84,16 @@ standalone           → :8000
 
 Both configurations had to change: the systemd unit that launched Django and the Nginx `proxy_pass` target.
 
+The site configuration appeared in both `sites-available` and `sites-enabled`. Checking the enabled entry with `ls -l` showed the symlink relationship before I edited the underlying configuration.
+
 After changing the Django unit, systemd had to reread the unit and restart Django. After changing Nginx, I validated and reloaded its configuration:
 
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+
+That distinction was another version of a pattern I had already seen with systemd: changing a file on disk does not mean the running daemon is already using the new configuration.
 
 ## What the 502 taught me
 
@@ -95,8 +107,6 @@ Nginx reached its backend     ✗
 ```
 
 So a 502 from Nginx pushed the next investigation toward the configured upstream/backend rather than back toward whether port 80 was listening.
-
-The exercise also introduced the Debian/Ubuntu `sites-available` and `sites-enabled` layout. I used `grep` to find the `proxy_pass` directive and `ls -l` to confirm the enabled site linked to the available configuration before editing it.
 
 ## FTP: login worked, transfer failed
 
@@ -127,7 +137,13 @@ curl http://localhost
 
 and hung because an iptables OUTPUT rule blocked traffic to `127.0.0.1:80`.
 
-That reinforced that loopback traffic stays on the same machine but still goes through networking behavior that can be affected by firewall rules.
+The useful inspection path included the OUTPUT chain rather than assuming localhost traffic bypassed firewall behavior:
+
+```bash
+sudo iptables -L OUTPUT -n --line-numbers
+```
+
+That reinforced that loopback traffic stays on the same machine but still goes through host networking behavior that can be filtered.
 
 ## Additional exposure
 
