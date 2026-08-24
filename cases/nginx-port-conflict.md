@@ -32,8 +32,8 @@ The Nginx site was traced through the standard Debian/Ubuntu layout:
 Searching the configuration showed:
 
 ```text
-/etc/nginx/sites-enabled/bergen:7:        proxy_pass http://127.0.0.1:8000;
-/etc/nginx/sites-available/bergen:7:       proxy_pass http://127.0.0.1:8000;
+/etc/nginx/sites-enabled/n:7:        proxy_pass http://127.0.0.1:8000;
+/etc/nginx/sites-available/n:7:       proxy_pass http://127.0.0.1:8000;
 ```
 
 The important finding was not just `8000`. It was that Nginx was acting as a front end for a backend service bound to loopback.
@@ -62,7 +62,7 @@ sites-enabled
 → contains the site configurations that Nginx currently loads
 ```
 
-The matching `bergen` entries were therefore not two unrelated configurations. The enabled path represented the active site configuration relationship.
+The matching `b` entries were therefore not two unrelated configurations. The enabled path represented the active site configuration relationship.
 
 ## Why `127.0.0.1` mattered
 
