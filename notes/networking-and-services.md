@@ -20,7 +20,7 @@ Which protocol/state is shown?
 Who should be able to reach it?
 ```
 
-During the Linux Server Review, observed listeners included:
+During the whole-system review, observed listeners included:
 
 ```text
 sshd        0.0.0.0:22
@@ -56,11 +56,11 @@ local dependency such as a database
 
 That made port troubleshooting less about finding a number and more about tracing the service path.
 
-Completed port/networking practice included Taipei, Kampot, Porto, Bergen, and the Linux Server Review. The exact command trails for every short scenario are not retained, so only verified details are documented here.
+Completed port/networking practice included service-access, port-change, port-audit, Nginx conflict, and whole-system review exercises. The exact command trails for every short scenario are not retained, so only verified details are documented here.
 
 ## Nginx and reverse-proxy tracing
 
-During Bergen, the Nginx site configuration was inspected under the Debian/Ubuntu-style `sites-available` / `sites-enabled` layout. A directly observed directive was:
+During the Nginx conflict exercise, the site configuration was inspected under the Debian/Ubuntu-style `sites-available` / `sites-enabled` layout. A directly observed directive was:
 
 ```nginx
 proxy_pass http://127.0.0.1:8000;
@@ -90,9 +90,9 @@ See [Nginx Port Conflict](../cases/nginx-port-conflict.md).
 
 Completed exercises also provided hands-on exposure to:
 
-- TLS certificate renewal (Geneva)
-- FTP synchronization failure (Edinburgh)
-- database write failure (Manhattan)
+- TLS certificate renewal
+- FTP synchronization failure
+- database write failure
 
 Those exercises support familiarity with the troubleshooting areas, not claims of deep PKI, FTP-server, or database administration expertise.
 
