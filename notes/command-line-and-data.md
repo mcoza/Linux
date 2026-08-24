@@ -43,7 +43,7 @@ A useful access-log pattern is:
 awk '{print $1}' access.log | sort | uniq -c | sort -nr | head
 ```
 
-That turns raw log entries into a ranked frequency count. In the Saskatoon exercise, the most frequent IP appeared **482 times**.
+That turns raw log entries into a ranked frequency count. In one log-analysis exercise, the most frequent IP appeared **482 times**.
 
 `grep` was also used for content searches and exact-pattern matching. For example:
 
