@@ -20,7 +20,7 @@ See the [practice log](practice-log.md) for the completed scenario list.
 
 ## Strongest troubleshooting examples
 
-### [Linux Server Review](cases/linux-server-review.md)
+### [Whole-System Health Review](cases/system-health-review.md)
 Reviewed an unfamiliar server by mapping processes and listeners, checking CPU/load and memory, finding historical OOM evidence, reviewing disk capacity, and using those observations to infer the system's role and health.
 
 ### [Nginx Port Conflict](cases/nginx-port-conflict.md)
