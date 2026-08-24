@@ -4,6 +4,12 @@ This repository documents my Linux troubleshooting practice as it developed thro
 
 The work comes from personal training environments. The goal is to show what I was trying to understand, what evidence I gathered, how I chose the next command, and what I learned when my first assumption was incomplete or wrong.
 
+## Foundation work
+
+Before the troubleshooting exercises became more interconnected, I practiced basic command-line navigation, shell pipelines, SSH-based work, and Debian/Ubuntu package management. That included the normal APT workflow with `apt update`, `apt upgrade`, `apt install`, `apt remove`, `apt search`, and `apt show`, plus the practical distinction between the user-facing `apt` command and the older/script-oriented `apt-get` interface.
+
+Those basics are not presented as a separate project because they became tools used throughout the later troubleshooting work.
+
 ## How my troubleshooting approach has developed
 
 ### 1. Start with files, text, and command output
@@ -41,7 +47,15 @@ Tools here included `ps`, `pgrep`, `fuser`, `lsof`, `top`, `htop`, `free`, `vmst
 
 [Processes and system state](02-process-and-system-state.md)
 
-### 3. Follow services and automation past the launcher
+### 3. Add identity and permissions to the investigation
+
+User and permission exercises added another question that can sit underneath file, script, or service failures: **which identity is trying to perform the operation, and what access does that identity actually have?**
+
+I practiced checking users, groups, ownership, and permission bits, and learned not to treat `permission denied` as a generic application failure.
+
+[Users and permissions](05-users-and-permissions.md)
+
+### 4. Follow services and automation past the launcher
 
 Later exercises added systemd, cron, timers, service-to-script relationships, and cgroup resource controls.
 
@@ -57,7 +71,7 @@ I learned to inspect unit state, the command systemd was configured to launch, l
 
 [Services and automation](03-services-and-automation.md)
 
-### 4. Trace network and application paths
+### 5. Trace network and application paths
 
 The networking work started with listeners and bind addresses, then became more useful once I began following ports into processes, services, configuration, and downstream dependencies.
 
