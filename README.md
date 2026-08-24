@@ -96,7 +96,7 @@ These pages contain the **reusable concepts and command patterns** accumulated a
 Case studies are reserved for investigations where several earlier skills connect together.
 
 - [Linux Server Review](cases/linux-server-review.md) — infer server purpose, inspect CPU/load and memory, find historical OOM evidence, review disk capacity, processes, and listeners.
-- [Bergen: Nginx Port Conflict](cases/bergen-nginx-port-conflict.md) — trace an Nginx request path through active site configuration and `proxy_pass` while troubleshooting a port conflict.
+- [Nginx Port Conflict](cases/nginx-port-conflict.md) — trace an Nginx request path through active site configuration and `proxy_pass` while troubleshooting a port conflict.
 
 ### `practice-log.md`
 
