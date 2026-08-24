@@ -1,70 +1,46 @@
-# Linux System Troubleshooting
+# Linux Troubleshooting: Learning and Applied Reasoning
 
-Hands-on Linux troubleshooting practice focused on understanding **processes, services, logs, networking, and system state** rather than memorizing commands.
+This repository documents how I am developing Linux troubleshooting judgment through hands-on exercises. It is organized around a progression: what I learned, where I applied it, why I selected a command, what its output revealed, and how that evidence guided the next step.
 
-This is personal lab/training work, not professional Linux administration.
+The purpose is not to present a list of commands or claim professional Linux administration experience. It is to show how I use Linux tools to answer operational questions.
 
-## Snapshot
+## Learning progression
 
-- **20 confirmed completed SadServers scenarios** — 19 Easy, 1 Medium
-- process and open-file investigation
-- command-line log/text/CSV processing
-- APT package-management basics
-- CPU, load, memory, OOM, and disk investigation
-- TCP/UDP listeners, ports, and bind addresses
-- systemd timer and scheduled-task troubleshooting
-- Nginx reverse-proxy/backend tracing
-- introductory cgroup, TLS, FTP, and database troubleshooting exposure
+| Stage | Question being answered | Applied work |
+|---|---|---|
+| [1. File and text investigation](01-file-and-text-investigation.md) | How do I locate, filter, transform, and summarize evidence? | Content searches, log aggregation, column arithmetic, CSV work, and searching virtual filesystems |
+| [2. Processes and system state](02-process-and-system-state.md) | Which process or resource explains the symptom, and is the host healthy? | Open-file tracing, process investigation, IPC, CPU/load, memory/OOM, and storage review |
+| [3. Services and automation](03-services-and-automation.md) | Did the service or scheduled job run, and did its underlying command succeed? | Service inspection, timers, backups, cleanup jobs, and resource-control troubleshooting |
+| [4. Networking and application paths](04-networking-and-application-paths.md) | Which service is listening, where is it exposed, and what dependency comes next? | Service access, port changes and audits, Nginx/backend tracing, TLS, FTP, and database failures |
+| [5. Applied investigation](applied-investigations/system-health-review.md) | How do multiple sources of evidence describe one unfamiliar server? | Processes, listeners, CPU/load, memory history, storage, and service relationships |
 
-See the [practice log](practice-log.md) for the completed scenario list.
+## Reasoning model
 
-## Strongest troubleshooting examples
+Each command is documented in context:
 
-### [Whole-System Health Review](cases/system-health-review.md)
-Reviewed an unfamiliar server by mapping processes and listeners, checking CPU/load and memory, finding historical OOM evidence, reviewing disk capacity, and using those observations to infer the system's role and health.
-
-### [Nginx Port Conflict](cases/nginx-port-conflict.md)
-Traced a port/service problem through Nginx site configuration and a local `proxy_pass` backend. The case documents the verified investigation path without reconstructing the final remediation commands from memory.
-
-## Technical notes
-
-| Area | Coverage |
-|---|---|
-| [Command Line & Data](notes/command-line-and-data.md) | APT, `grep`, `awk`, pipelines, counting, arithmetic, CSV/text work |
-| [System Troubleshooting](notes/system-troubleshooting.md) | processes, open files, `/proc`, CPU/load, memory/OOM, storage, timers |
-| [Networking & Services](notes/networking-and-services.md) | listeners, bind addresses, ports, service relationships, Nginx, TLS/FTP/database exposure |
-
-## Troubleshooting approach
+1. **Situation** — the observable problem or question.
+2. **Need** — the information required to continue.
+3. **Command choice** — why that tool fits the question.
+4. **Interpretation** — what the relevant output means.
+5. **Next step** — how the evidence changes the investigation.
+6. **Verification** — how the original symptom or expected result is checked.
 
 ```text
-observe the symptom
+observe a symptom
       ↓
-identify the responsible process/service/resource
+define what must be known
       ↓
-inspect current state and relevant logs/configuration
+select a command that exposes that state
       ↓
-form a hypothesis
+interpret the evidence in context
       ↓
-make a targeted change
+take a targeted next step
       ↓
 verify the result
 ```
 
-One lesson from the server-review work was to separate **what the system is doing** from **whether it is healthy**. A high resource value or open port only becomes meaningful in the context of the server's role.
+## Evidence boundary
 
-## Evidence
+The material comes from completed hands-on Linux troubleshooting exercises. Detailed examples are included where the commands, observations, and reasoning were retained accurately. Other completed areas are identified as applied exposure without reconstructing command sequences from memory.
 
-Commands and selected output are shown as text when the original details are retained accurately. Completed exercises with incomplete command trails are listed in the practice log rather than reconstructed from memory.
-
-```text
-Linux/
-├── README.md
-├── practice-log.md
-├── notes/
-│   ├── command-line-and-data.md
-│   ├── system-troubleshooting.md
-│   └── networking-and-services.md
-└── cases/
-    ├── system-health-review.md
-    └── nginx-port-conflict.md
-```
+This is personal lab and training work, not professional Linux administration.
