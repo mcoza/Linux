@@ -1,170 +1,132 @@
 # Linux Skills Progress
 
-This page tracks Linux topics that have been practiced hands-on. It is organized by technical area rather than by individual training exercises.
+This page tracks the current state of Linux skills practiced through hands-on labs and troubleshooting exercises. It is deliberately conservative: **completed exposure is not the same thing as strong proficiency**.
 
-## Command line and text processing
+## Current matrix
 
-Practiced:
+| Area | Current level | What is supported | Related notes |
+|---|---|---|---|
+| Package management | Practiced | APT workflow, `apt` vs `apt-get`, install/search/show/remove/update concepts | [Package Management](docs/package-management.md) |
+| Text / log processing | Practiced | `grep`, `awk`, `sort`, `uniq`, pipelines, field extraction, aggregation, arithmetic | [Text & Data Processing](docs/text-data-processing.md) |
+| CSV / structured text | Practiced | Completed CSV transformation and merge exercises | [Text & Data Processing](docs/text-data-processing.md) |
+| Processes / open files | Practiced | `ps`, `pgrep`, `kill`, `fuser`, `lsof`, `tail -f`, file-to-process investigation | [Processes, Files, `/proc` & IPC](docs/processes-files-proc-ipc.md) |
+| `/proc` / runtime state | Practiced | Filesystem/content investigation under `/proc`, `find`, `grep`, regex anchors | [Processes, Files, `/proc` & IPC](docs/processes-files-proc-ipc.md) |
+| IPC / named pipes | Practiced exposure | Completed named-pipe troubleshooting exercise; deeper FIFO behavior still developing | [Processes, Files, `/proc` & IPC](docs/processes-files-proc-ipc.md) |
+| CPU / load | Practiced | `lscpu`, `uptime`, `top`, `htop`, process CPU review, load relative to CPU count | [System Health & Storage](docs/system-health-storage.md) |
+| Memory / OOM | Practiced | `free`, `vmstat`, `dmesg`, `journalctl`, historical OOM investigation | [System Health & Storage](docs/system-health-storage.md) |
+| Disk capacity / devices | Practiced | `df -h`, `lsblk`, ruling out simple capacity exhaustion | [System Health & Storage](docs/system-health-storage.md) |
+| Disk I/O performance | Developing | `iostat` and `sar -d` introduced, not treated as demonstrated proficiency | [System Health & Storage](docs/system-health-storage.md) |
+| cgroups / resource control | Practiced exposure | Completed cgroup troubleshooting scenario; deeper administration still developing | [System Health & Storage](docs/system-health-storage.md) |
+| Ports / listeners | Practiced | `ss`, `netstat`, bind addresses, TCP `LISTEN`, UDP `UNCONN`, service-to-port mapping | [Networking & Services](docs/networking-services.md) |
+| Network diagnosis | Developing | Multiple port/service exercises completed; deeper packet/routing diagnosis needs repetition | [Networking & Services](docs/networking-services.md) |
+| systemd / timers | Practiced exposure | Completed timer/service troubleshooting; deeper dependency and unit-file work still developing | [Services & Automation](docs/services-automation.md) |
+| Scheduled automation | Practiced exposure | Backup and cleanup/maintenance failure scenarios completed | [Services & Automation](docs/services-automation.md) |
+| TLS certificates | Practiced exposure | Completed certificate-renewal exercise; deeper PKI operations not claimed | [Web, Security & Application Services](docs/web-security-app-services.md) |
+| Nginx / reverse proxy | Practiced | Site config inspection, `sites-available` / `sites-enabled`, `proxy_pass`, backend tracing | [Web, Security & Application Services](docs/web-security-app-services.md) |
+| FTP synchronization | Practiced exposure | Completed FTP catalog-sync troubleshooting scenario | [Web, Security & Application Services](docs/web-security-app-services.md) |
+| Database troubleshooting | Practiced exposure | Completed database-write troubleshooting scenario; database administration not claimed | [Web, Security & Application Services](docs/web-security-app-services.md) |
 
-- `grep` for searching and filtering text
-- `awk` for field extraction, summation, and structured processing
-- `sort` and `uniq -c` for aggregation and frequency counting
-- `head` and `tail` for narrowing command output
-- `bc` for decimal arithmetic and output precision
-- CSV transformation and merging
-- command pipelines that combine several small tools to answer one question
+## Strongest current troubleshooting patterns
 
-Reusable pattern:
+### Resource → process
 
 ```text
-raw text or log
-      ↓
-extract relevant fields
-      ↓
-filter / normalize
-      ↓
-aggregate / calculate
-      ↓
-inspect final result
+unexpected CPU / memory / load
+        ↓
+identify top consumers
+        ↓
+understand system role
+        ↓
+check current state
+        ↓
+check historical events
 ```
 
-## Processes, files, and `/proc`
-
-Practiced:
-
-- `ps` and `pgrep` for process discovery
-- `kill` for targeted process termination
-- `fuser` and `lsof` for relating files and ports to processes
-- `tail -f` for observing actively changing files
-- `find` for locating filesystem objects
-- `grep` with `find` for searching file contents
-- `/proc` as a source of process and kernel-related runtime information
-- regular-expression anchors such as `^` for matching the start of a line
-- named-pipe / FIFO troubleshooting
-
-Reusable pattern:
+### File → process
 
 ```text
-file or resource symptom
+file is changing / locked / in use
         ↓
-identify the process using it
+identify process using it
         ↓
-inspect process state
+inspect PID/process state
         ↓
-make a targeted change
+make targeted change
         ↓
-verify the symptom stopped
+verify file behavior
 ```
 
-## System health and resource investigation
-
-Practiced:
-
-- `lscpu` for CPU information
-- `uptime` for load averages
-- `top` / `htop` for live process and utilization review
-- `free -m` and `vmstat` for memory state
-- `dmesg` and `journalctl` for historical system events
-- identifying evidence of an out-of-memory event
-- `df -h` for filesystem utilization
-- `lsblk` for block-device layout
-- cgroup-related troubleshooting
-
-Important distinction:
+### Port → service → configuration
 
 ```text
-current system state
-        ≠
-complete failure history
-```
-
-Logs can show a failure that is no longer visible in the current resource snapshot.
-
-## Networking and service discovery
-
-Practiced:
-
-- `ss -tlpn` and `netstat -tlpn` for listener inspection
-- associating ports with services and processes
-- interpreting common bind addresses
-- distinguishing TCP `LISTEN` from UDP output such as `UNCONN`
-- port investigation when standard networking utilities are unavailable
-- troubleshooting port conflicts
-- tracing traffic from a front-end service to a local backend
-
-Bind-address model:
-
-```text
-127.0.0.1
-→ loopback / local host only
-
-0.0.0.0
-→ all IPv4 interfaces
-
-:::
-→ IPv6 unspecified / all IPv6 interfaces
-```
-
-## Services, scheduling, and automation
-
-Practiced:
-
-- systemd service investigation
-- systemd timer troubleshooting
-- scheduled backup troubleshooting
-- automated cleanup / maintenance troubleshooting
-- verifying whether a service or scheduled task actually performed the intended work
-
-Reusable pattern:
-
-```text
-expected automated action did not occur
+port or connectivity symptom
         ↓
-identify scheduler / service
+inspect listeners
+        ↓
+map listener to process/service
+        ↓
+inspect bind address
+        ↓
+trace service configuration/dependency
+        ↓
+verify request path
+```
+
+### Automation failure
+
+```text
+expected task did not happen
+        ↓
+identify scheduler/service
         ↓
 inspect configuration
         ↓
-inspect logs / execution evidence
+inspect execution evidence/logs
         ↓
-correct the failure
+correct cause
         ↓
-verify the next execution path
-```
-
-## Web, security, and application services
-
-Practiced:
-
-- SSL certificate renewal
-- Nginx site configuration
-- Debian/Ubuntu `sites-available` and `sites-enabled` relationship
-- Nginx `proxy_pass`
-- reverse-proxy/backend relationships
-- FTP synchronization troubleshooting
-- database write troubleshooting
-
-Current web-service model:
-
-```text
-client
-  ↓
-front-end / reverse proxy
-  ↓
-local backend service
-  ↓
-application dependencies
+verify future execution path
 ```
 
 ## Developing areas
 
-These are areas that have been introduced or practiced but still need more repetition before treating them as strong skills:
+These remain intentionally marked as developing until more hands-on work supports stronger claims:
 
-- deeper network diagnosis
-- disk I/O performance analysis with tools such as `iostat` and `sar`
-- systemd internals and service dependency troubleshooting
-- Linux permissions and ownership beyond basic use
+- deeper Linux permissions and ownership administration
 - DNS troubleshooting
 - firewalling
 - SSH troubleshooting
+- systemd dependency/unit-file troubleshooting
+- disk I/O performance analysis
+- deeper cgroup administration
+- database administration
+- deeper TLS/PKI operations
 
-This page will be updated as those areas become more established through additional hands-on work.
+## Not currently claimed
+
+The repository does **not** currently claim strong hands-on proficiency in:
+
+- Kubernetes administration
+- advanced Git debugging/bisect workflows
+- AWS storage administration
+- advanced SSH recovery
+- production database administration
+- production web-server administration
+
+Some of those areas have been encountered or attempted in training, but they are not promoted here until the hands-on record supports the claim.
+
+## Update rule
+
+A topic moves upward only when new work adds evidence:
+
+```text
+introduced
+   ↓
+practiced exposure
+   ↓
+practiced repeatedly
+   ↓
+stronger portfolio case
+```
+
+The labels describe the current evidence, not a permanent ceiling.
