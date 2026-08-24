@@ -1,28 +1,42 @@
-# Bergen: Nginx Port Conflict
+# Bergen: Nginx Port Conflict and Backend Routing
 
 ## Goal
 
 Troubleshoot a Linux web-service port conflict without breaking the existing application path.
 
-This case became more useful than a simple "port already in use" exercise because it required tracing how Nginx was connected to the backend application.
+This case is useful because the problem could not be treated as only "a port is busy." The investigation had to connect the listening service, the Nginx configuration, the loopback backend, and the request path before changing anything.
 
-## Investigation
+## Starting point
 
-The active Nginx site configuration was traced through:
+The important question became:
 
 ```text
-/etc/nginx/sites-enabled/bergen
+What owns the relevant port?
+        ↓
+How is the existing web service using it?
+        ↓
+Where is Nginx sending requests?
+```
+
+Earlier listener work made it possible to interpret ports and bind addresses rather than treating them as isolated numbers.
+
+## Tracing the active Nginx configuration
+
+The Nginx site was traced through the standard Debian/Ubuntu layout:
+
+```text
 /etc/nginx/sites-available/bergen
+/etc/nginx/sites-enabled/bergen
 ```
 
 Searching the configuration showed:
 
 ```text
 /etc/nginx/sites-enabled/bergen:7:        proxy_pass http://127.0.0.1:8000;
-/etc/nginx/sites-available/bergen:7:      proxy_pass http://127.0.0.1:8000;
+/etc/nginx/sites-available/bergen:7:       proxy_pass http://127.0.0.1:8000;
 ```
 
-The important discovery was not just the port number. It was understanding the request path:
+The important finding was not just `8000`. It was that Nginx was acting as a front end for a backend service bound to loopback.
 
 ```text
 client request
@@ -36,83 +50,117 @@ proxy_pass
 backend service
 ```
 
-## Nginx configuration relationship
+## `sites-available` and `sites-enabled`
 
-This exercise also clarified the purpose of the two common Debian/Ubuntu Nginx directories:
+This exercise clarified a piece of Nginx administration that was newer than most of the surrounding Linux work.
 
 ```text
 sites-available
 → stores site configuration files
 
 sites-enabled
-→ contains the configurations currently enabled by Nginx
+→ contains the site configurations that Nginx currently loads
 ```
 
-Seeing the same `proxy_pass` entry in both locations helped connect the enabled site to its underlying configuration rather than treating the files as unrelated duplicates.
+The matching `bergen` entries were therefore not two unrelated configurations. The enabled path represented the active site configuration relationship.
 
-## Port and bind-address context
+## Why `127.0.0.1` mattered
 
-Earlier listener work made the `127.0.0.1` address meaningful:
+The backend target was:
 
 ```text
 127.0.0.1:8000
 ```
 
-means the backend is bound to loopback and is intended to be reached locally, while Nginx provides the client-facing layer.
+`127.0.0.1` is loopback, so the backend is intended to be reached from the same machine rather than exposed directly on every interface.
 
-That changes the troubleshooting question from:
+That creates a layered service design:
 
-> "What owns port 8000?"
+```text
+client-facing listener
+        ↓
+Nginx reverse proxy
+        ↓
+local backend listener
+```
+
+This changes the troubleshooting question from:
+
+> What process is using this port?
 
 into:
 
-> "Which service should own the backend port, and where is Nginx configured to send requests?"
+> Which component should own each port, and how does traffic move between those components?
 
-## Resolution workflow
+## Troubleshooting sequence
 
-The troubleshooting sequence was:
+The case brought several earlier Linux skills together:
 
 ```text
-Port/service problem
-      ↓
-Inspect listening services and processes
-      ↓
-Identify Nginx as part of the request path
-      ↓
-Locate the active site configuration
-      ↓
+Port conflict / service problem
+        ↓
+Inspect listeners and processes
+        ↓
+Identify the web-service relationship
+        ↓
+Locate the active Nginx site
+        ↓
 Inspect proxy_pass
-      ↓
-Compare the configured backend with the service that should receive traffic
-      ↓
-Make the targeted Nginx configuration change
-      ↓
-Reload/verify the service path
+        ↓
+Compare Nginx's configured backend with the intended service path
+        ↓
+Make the targeted configuration change
+        ↓
+Validate / reload as appropriate
+        ↓
+Verify the request path works
 ```
 
-The scenario reached the successful completion state. The exact final backend value is intentionally not reconstructed here from memory; the documented value above is the configuration that was directly observed during troubleshooting.
+The scenario reached the platform's successful completion state.
 
-## Why this case matters
+The repository intentionally does **not** invent the exact final backend value or reconstruct command output that is no longer retained accurately. The `127.0.0.1:8000` value above is the configuration that was directly observed during the troubleshooting session.
 
-This was one of the first exercises where several earlier Linux concepts converged:
+## What this connected
 
-- processes
-- ports
+This case combined concepts that had previously appeared separately:
+
+- process and service discovery
+- port ownership and conflicts
+- bind-address interpretation
 - loopback addressing
-- service listeners
-- configuration files
-- Nginx
-- reverse proxies
-- backend service relationships
+- configuration-file discovery
+- Nginx site activation
+- `proxy_pass`
+- reverse-proxy/backend relationships
+- targeted change followed by verification
 
-The main reusable lesson is to trace **service relationships** instead of treating each port or configuration file as an isolated object.
+## Reusable lesson
+
+A port conflict is often a **service-relationship problem**, not merely a port-number problem.
+
+Before changing a listener or configuration, trace the path:
+
+```text
+client
+  ↓
+front-end listener
+  ↓
+proxy / routing rule
+  ↓
+backend listener
+  ↓
+application
+```
+
+That helps avoid "fixing" one port by breaking the service that depends on it.
 
 ## Skills demonstrated
 
 - Nginx site-configuration inspection
-- `sites-available` / `sites-enabled` relationship
+- `sites-available` / `sites-enabled` interpretation
 - reverse-proxy tracing
 - `proxy_pass` interpretation
 - loopback/backend service understanding
 - port-conflict troubleshooting
+- connecting listeners, processes, and configuration into one service path
 - targeted configuration changes followed by verification
