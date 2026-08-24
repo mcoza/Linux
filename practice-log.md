@@ -2,33 +2,33 @@
 
 Only SadServers exercises that reached the successful **Well done!** state are counted here as completed.
 
-## Completed scenarios
+## Completed exercises
 
-| # | Scenario | Difficulty | Primary area |
+| # | Exercise focus | Difficulty | Primary area |
 |---:|---|---|---|
-| 1 | [Saint John — what is writing to this log file?](https://sadservers.com/scenario/saint-john) | Easy | Processes / open files |
-| 2 | [Saskatoon — counting IPs](https://sadservers.com/scenario/saskatoon) | Easy | Log analysis / aggregation |
-| 3 | [The Command Line Murders](https://sadservers.com/scenario/command-line-murders) | Easy | Search / filtering |
-| 4 | [Taipei — Come a-knocking](https://sadservers.com/scenario/taipei) | Easy | Networking / service access |
-| 5 | [Lhasa — Easy Math](https://sadservers.com/scenario/lhasa) | Easy | Text processing / arithmetic |
-| 6 | [Minneapolis — Break a CSV file](https://sadservers.com/scenario/minneapolis) | Easy | CSV / text transformation |
-| 7 | [Saint Paul — Merge Many CSV files](https://sadservers.com/scenario/st-paul) | Easy | CSV / data manipulation |
-| 8 | [Bata — Find in `/proc`](https://sadservers.com/scenario/bata) | Easy | `/proc` / content search |
-| 9 | [Geneva — Renew an SSL Certificate](https://sadservers.com/scenario/geneva) | Easy | TLS / certificate maintenance |
-| 10 | [Linux Server Review — Guided Learning](https://sadservers.com/scenario/linux-server-review) | Easy | Whole-system investigation |
-| 11 | [Tokamachi — Troubleshooting a Named Pipe](https://sadservers.com/scenario/tokamachi) | Easy | IPC / named pipes |
-| 12 | [Kampot — A New Port](https://sadservers.com/scenario/kampot) | Easy | Ports / services |
-| 13 | [Cairo — Time for a Timer](https://sadservers.com/scenario/cairo) | Easy | systemd timers / automation |
-| 14 | [Alexandria — The Vanishing Backups](https://sadservers.com/scenario/alexandria) | Easy | Scheduling / backups |
-| 15 | [Valladolid — Cleaner not cleaning](https://sadservers.com/scenario/valladolid) | Easy | Automated maintenance |
-| 16 | [Porto — Port audit without net tools](https://sadservers.com/scenario/porto) | Easy | Network investigation |
-| 17 | [Edinburgh — FTP catalog sync failure](https://sadservers.com/scenario/edinburgh) | Easy | FTP / synchronization |
-| 18 | [Genova — cgroups problem](https://sadservers.com/scenario/genova) | Easy | cgroups / resource control |
-| 19 | [Bergen — Port already in use](https://sadservers.com/scenario/bergen) | Easy | Nginx / port conflict |
-| 20 | [Manhattan — can't write data into database](https://sadservers.com/scenario/manhattan) | Medium | Database / application troubleshooting |
+| 1 | Identify a process writing to a log file | Easy | Processes / open files |
+| 2 | Count and rank source IP addresses | Easy | Log analysis / aggregation |
+| 3 | Search and filter evidence across text files | Easy | Search / filtering |
+| 4 | Diagnose network-service access | Easy | Networking / service access |
+| 5 | Calculate a value from column-based data | Easy | Text processing / arithmetic |
+| 6 | Transform a CSV file | Easy | CSV / text transformation |
+| 7 | Merge multiple CSV files | Easy | CSV / data manipulation |
+| 8 | Find content under `/proc` | Easy | `/proc` / content search |
+| 9 | Renew a TLS certificate | Easy | TLS / certificate maintenance |
+| 10 | Review an unfamiliar Linux server | Easy | Whole-system investigation |
+| 11 | Troubleshoot a named pipe | Easy | IPC / named pipes |
+| 12 | Change and verify a service port | Easy | Ports / services |
+| 13 | Troubleshoot a systemd timer | Easy | systemd timers / automation |
+| 14 | Diagnose missing scheduled backups | Easy | Scheduling / backups |
+| 15 | Diagnose failed automated cleanup | Easy | Automated maintenance |
+| 16 | Audit a port without standard network tools | Easy | Network investigation |
+| 17 | Diagnose an FTP synchronization failure | Easy | FTP / synchronization |
+| 18 | Troubleshoot a cgroup configuration | Easy | cgroups / resource control |
+| 19 | Resolve an Nginx port conflict | Easy | Nginx / port conflict |
+| 20 | Diagnose a database write failure | Medium | Database / application troubleshooting |
 
 **Total: 20 completed — 19 Easy, 1 Medium.**
 
-Detailed write-ups are limited to work where the original troubleshooting details are retained accurately. The strongest examples are the [Linux Server Review](cases/linux-server-review.md) and [Nginx Port Conflict](cases/nginx-port-conflict.md); reusable command and troubleshooting patterns are collected under [`notes/`](notes/).
+Detailed write-ups are limited to work where the original troubleshooting details are retained accurately. The strongest examples are the [Whole-System Health Review](cases/system-health-review.md) and [Nginx Port Conflict](cases/nginx-port-conflict.md); reusable command and troubleshooting patterns are collected under [`notes/`](notes/).
 
 Exercises that were opened or attempted without the successful completion state are not included in this count.
